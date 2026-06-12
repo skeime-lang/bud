@@ -13,6 +13,9 @@ Dette er ikke juridisk rådgivning, ikke en komplett kravmatrise og ikke en kont
 - `agent-briefs.md` beskriver foreslåtte subagenter, søkeområder og arbeidsregler.
 - `source-cards.csv` er maskinlesbare kildekort med tema, kilde, praktisk betydning, risiko og fagverifisering.
 - `source-cards.md` er en lesbar oversikt over de samme kildene og de viktigste kontrollpunktene.
+- `rulebook.md` gjør kildekortene om til operative kontrollregler for anbud.
+- `llm-judge-rubric.yaml` definerer hard-fail gates, scoring og outputskjema for en LLM-dommer.
+- `tender-check-template.md` er en rapportmal for fremtidig kontroll av konkrete anbudsdokumenter.
 
 ## Bruksregler
 
