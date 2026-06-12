@@ -1,0 +1,185 @@
+version: "0.1"
+date: "2026-06-12"
+scope: "External rulebook foundation for Norwegian public procurement tender QA, especially BAE"
+status: "draft_not_legal_advice"
+source_files:
+  - "source-cards.csv"
+  - "source-cards.md"
+  - "rulebook.md"
+
+judge_principles:
+  - "Do not give legal conclusions without marking professional verification required."
+  - "Always cite rule IDs from rulebook.md and source card IDs from source-cards.csv."
+  - "Never treat DFØ guidance, KOFA practice, NOU material, statistics or research as binding law by itself."
+  - "Use Lovdata, the concrete competition documents and the Doffin/TED notice as controlling sources when available."
+  - "Rules marked 2026-07-01 are version-sensitive and must be checked against notice date and applicable transition rules."
+  - "Do not inspect or infer local tender documents unless they are explicitly provided for the check."
+
+required_inputs:
+  competition_notice:
+    required: true
+    examples:
+      - "Doffin notice"
+      - "TED notice"
+      - "notice date"
+      - "procedure"
+      - "deadline"
+  competition_documents:
+    required: true
+    examples:
+      - "competition basis"
+      - "requirements specification"
+      - "contract terms"
+      - "forms and appendices"
+  tender_draft:
+    required: true
+    examples:
+      - "offer letter"
+      - "response document"
+      - "attachments"
+      - "price form when explicitly in scope"
+  source_basis:
+    required: true
+    examples:
+      - "source-cards.csv"
+      - "rulebook.md"
+
+hard_fail_conditions:
+  - id: "HF-001"
+    rule_refs: ["FORM-001", "DOC-001"]
+    condition: "Deadline, submission channel, signature, required format or mandatory attachment is missing or unclear."
+    severity: "blocker"
+  - id: "HF-002"
+    rule_refs: ["REQ-001"]
+    condition: "An absolute requirement or minimum requirement is unanswered, contradicted or answered with an unassessed reservation."
+    severity: "blocker"
+  - id: "HF-003"
+    rule_refs: ["QUAL-001"]
+    condition: "Qualification documentation is missing, expired, wrong type or does not show fulfilment."
+    severity: "blocker"
+  - id: "HF-004"
+    rule_refs: ["DEV-001"]
+    condition: "Hidden reservation, material deviation, unclear price condition or non-binding offer text is detected."
+    severity: "blocker"
+  - id: "HF-005"
+    rule_refs: ["SRC-001", "AI-001"]
+    condition: "The judge invents a legal source, threshold, deadline, KOFA case, rule text or legal conclusion."
+    severity: "blocker"
+  - id: "HF-006"
+    rule_refs: ["META-001"]
+    condition: "The judge applies a 2026-07-01-sensitive rule without checking notice date and applicable rule version."
+    severity: "blocker"
+
+scoring:
+  max_score: 100
+  pass_threshold: 80
+  caution_threshold: 65
+  dimensions:
+    - id: "S1"
+      name: "Source grounding and version control"
+      points: 15
+      rule_refs: ["META-001", "SRC-001", "PROC-001", "AI-001"]
+      full_score: "All claims cite source card and rule IDs, with date/version and Doffin/TED/Lovdata/DFØ distinction."
+      zero_score: "Unsupported legal or procedural conclusions."
+    - id: "S2"
+      name: "Requirement completeness"
+      points: 20
+      rule_refs: ["REQ-001", "DOC-001"]
+      full_score: "Every absolute requirement and mandatory document is explicitly answered and traceable."
+      zero_score: "One or more absolute requirements or mandatory attachments are missing."
+    - id: "S3"
+      name: "Qualification and formality control"
+      points: 15
+      rule_refs: ["FORM-001", "QUAL-001"]
+      full_score: "Deadline, channel, format, signature, ESPD/attestations/references and qualification evidence are complete."
+      zero_score: "Formality or qualification basis is not possible to verify."
+    - id: "S4"
+      name: "Award criteria response quality"
+      points: 15
+      rule_refs: ["AWARD-001"]
+      full_score: "Tender response maps clearly to each award criterion and provides concrete, documented value."
+      zero_score: "Response is generic or does not follow the evaluation model."
+    - id: "S5"
+      name: "Reservations, deviations and contract risk"
+      points: 10
+      rule_refs: ["DEV-001", "CONTRACT-001"]
+      full_score: "Reservations and deviations are absent or explicitly assessed, and contract obligations are priced/planned."
+      zero_score: "Unassessed reservation, deviation or contract condition is present."
+    - id: "S6"
+      name: "Environment, seriousness, SHA/HMS and BAE documentation"
+      points: 15
+      rule_refs: ["ENV-001", "SER-001", "SHA-001", "BAE-001"]
+      full_score: "Climate/environment, wage/labour, apprentices, supplier chain, SHA/HMS, FDV and technical documentation are addressed where relevant."
+      zero_score: "Relevant social, environmental, SHA/HMS or technical requirements are ignored."
+    - id: "S7"
+      name: "Confidentiality and publishability"
+      points: 5
+      rule_refs: ["CONF-001"]
+      full_score: "Business secrets and personal/sensitive data are identified with concrete redaction guidance."
+      zero_score: "Sensitive content is exposed or confidentiality is overclaimed without explanation."
+    - id: "S8"
+      name: "AI safety and uncertainty handling"
+      points: 5
+      rule_refs: ["AI-001", "KOFA-001"]
+      full_score: "Uncertainty is explicit, KOFA/NOU/research is not overstated, and professional verification is marked."
+      zero_score: "The judge overstates certainty or treats non-binding sources as binding law."
+
+output_schema:
+  summary:
+    type: "string"
+    required: true
+    description: "Short conclusion with overall risk and whether any hard fail was found."
+  score:
+    type: "integer"
+    required: true
+    min: 0
+    max: 100
+  hard_fails:
+    type: "list"
+    required: true
+    item_fields:
+      - "id"
+      - "rule_refs"
+      - "finding"
+      - "evidence"
+      - "professional_verification_required"
+  findings:
+    type: "list"
+    required: true
+    item_fields:
+      - "rule_id"
+      - "source_card_ids"
+      - "status"
+      - "severity"
+      - "finding"
+      - "evidence"
+      - "recommended_action"
+      - "professional_verification_required"
+  missing_information:
+    type: "list"
+    required: true
+  assumptions:
+    type: "list"
+    required: true
+  version_context:
+    type: "object"
+    required: true
+    fields:
+      - "assessment_date"
+      - "notice_date"
+      - "procedure"
+      - "threshold_context"
+      - "rule_version_notes"
+
+status_values:
+  - "pass"
+  - "needs_review"
+  - "fail"
+  - "not_applicable"
+  - "insufficient_information"
+
+severity_values:
+  - "blocker"
+  - "major"
+  - "minor"
+  - "info"
